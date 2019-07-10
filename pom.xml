@@ -23,5 +23,11 @@
   	<artifactId>flickr4java</artifactId>
   	<version>3.0.1</version>
   </dependency>
+  <dependency>
+  	<groupId>com.kenai.nbpwr</groupId>
+  	<artifactId>org-slf4j-jdk14</artifactId>
+  	<version>1.6.1-201106101300</version>
+  	<type>nbm</type>
+  </dependency>
   </dependencies>
 </project>
