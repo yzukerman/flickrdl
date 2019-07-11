@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,12 +122,13 @@ public class BackupClient {
             	photos = pi.getPhotos(set.getId(), 500, photoSetPage);
             	photoSetPage++;
             }
-            logger.info("Size: " + photos.size());
-            if (setCount == 0)
+            logger.info("Set #" + setCount + " Size: " + photos.size());
+            if (setCount > 0 && setCount < 3)
             {
-            	downloadSet(set.getTitle(), photos, downloadDirectory);
-            	setCount++;
+            	logger.info("Downloading!");
+            	downloadSet(set.getTitle(), photos, downloadDirectory);            	
             }
+            setCount++;
         }
 	}
 	
@@ -172,33 +176,19 @@ public class BackupClient {
         // iterate and download the set's images
         Iterator<Photo> setIterator = photos.iterator();
         Photo p = null;
-        String url = null;
-        URL u = null;
-        String filename = null;
+        
+        // file download thread pool
+        ExecutorService pool = Executors.newFixedThreadPool(5);
         
         while (setIterator.hasNext()) {
 
             p = (Photo) setIterator.next();
-            url = p.getLargeUrl();
-            // GeoData g = p.getGeoData();
-            u = new URL(url);
-            filename = u.getFile();
-            filename = filename.substring(filename.lastIndexOf("/") + 1, filename.length());
-            System.out.println("Now writing " + filename + " to " + setDirectory.getCanonicalPath());
-            BufferedInputStream inStream = new BufferedInputStream(photoInt.getImageAsStream(p, Size.ORIGINAL));
-            File newFile = new File(setDirectory, filename);
-
-            FileOutputStream fos = new FileOutputStream(newFile);
-
-            int read = 0;
-
-            while ((read = inStream.read()) != -1) {
-                fos.write(read);
-            }
-            fos.flush();
-            fos.close();
-            inStream.close();
+            pool.submit(new DownloadTask(p, setDirectory, photoInt));
+            
         }
+        
+        pool.shutdown();
+        pool.awaitTermination(5, TimeUnit.SECONDS);
     
 	}
 	
@@ -220,4 +210,89 @@ public class BackupClient {
         }
         return new String(fname);
     }
+	
+	private static class DownloadTask implements Runnable {
+		
+		private Photo p;
+		private File setDirectory;
+		private PhotosInterface photoInt;
+		private String url;
+		private URL u;
+		private String filename;
+		private final Logger logger = LoggerFactory.getLogger(DownloadTask.class);
+		private FileOutputStream fos;
+		private BufferedInputStream inStream;
+		
+		public DownloadTask(Photo photo, File setDir, PhotosInterface pi)
+		{
+			this.p = photo;
+			this.setDirectory = setDir;
+			this.photoInt = pi;
+			fos = null;
+			inStream = null;
+		}
+		
+				
+		@Override 
+		public void run()
+		{
+	        url = p.getLargeUrl();
+	        try
+	        {
+	        // GeoData g = p.getGeoData();
+		        u = new URL(url);
+		        filename = u.getFile();
+		        filename = filename.substring(filename.lastIndexOf("/") + 1, filename.length());
+	       
+		        System.out.println("Now writing " + filename + " to " + setDirectory.getCanonicalPath());
+		        inStream = new BufferedInputStream(photoInt.getImageAsStream(p, Size.ORIGINAL));
+		        File newFile = new File(setDirectory, filename);
+		
+		        fos = new FileOutputStream(newFile);
+		
+		        int read = 0;
+		
+		        while ((read = inStream.read()) != -1) {
+		            fos.write(read);
+		        }
+	        }
+	        catch (IOException ioe)
+	        {
+	        	logger.warn("Download failed!");
+	        	logger.warn(ioe.getLocalizedMessage());
+	        }
+	        catch (FlickrException fe)
+	        {
+	        	logger.warn("Flickr Issue; Download failed.");
+	        	logger.warn(fe.getLocalizedMessage());
+	        }
+	        finally
+	        {
+		        disposeResources();
+	        }
+		}
+		
+		protected void disposeResources()
+		{
+			try
+			{
+				if(fos != null)
+				{
+					fos.flush();
+			        fos.close();
+				}
+				
+				if (inStream != null)
+				{
+					inStream.close();
+				}
+			}
+			catch (IOException ioe)
+			{
+				logger.warn("Exception disposing of file resources");
+				logger.warn(ioe.getLocalizedMessage());
+			}
+	        
+		}
+	}
 }
