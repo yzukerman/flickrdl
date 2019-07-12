@@ -102,6 +102,8 @@ public class BackupClient {
         PhotoList<Photo> photos = null;
         Photoset set = null;
         File downloadDirectory = new File(System.getProperty("user.home") + File.separatorChar + this.downloadDirectory);
+     // file download thread pool
+        ExecutorService pool = Executors.newFixedThreadPool(5);
         
         logger.info("Target download directory is: " + downloadDirectory.getName());
         
@@ -123,13 +125,16 @@ public class BackupClient {
             	photoSetPage++;
             }
             logger.info("Set #" + setCount + " Size: " + photos.size());
-            if (setCount > 0 && setCount < 3)
+            if (setCount > 4 && setCount < 7)
             {
             	logger.info("Downloading!");
-            	downloadSet(set.getTitle(), photos, downloadDirectory);            	
+            	downloadSet(set.getTitle(), photos, downloadDirectory, pool);            	
             }
             setCount++;
         }
+        
+        pool.shutdown();
+        pool.awaitTermination(5, TimeUnit.SECONDS);
 	}
 	
 	private void authorize() throws IOException, FlickrException {
@@ -164,7 +169,8 @@ public class BackupClient {
 	 */
 	private void downloadSet(String setName, 
 							 PhotoList<Photo> photos, 
-							 File downloadDirectory) throws Exception
+							 File downloadDirectory,
+							 ExecutorService pool) throws Exception
 	{
 		logger.info("Downloading set '" + setName + "'");
 		// create the directory for the set's download
@@ -177,8 +183,7 @@ public class BackupClient {
         Iterator<Photo> setIterator = photos.iterator();
         Photo p = null;
         
-        // file download thread pool
-        ExecutorService pool = Executors.newFixedThreadPool(5);
+        
         
         while (setIterator.hasNext()) {
 
@@ -187,8 +192,7 @@ public class BackupClient {
             
         }
         
-        pool.shutdown();
-        pool.awaitTermination(5, TimeUnit.SECONDS);
+        
     
 	}
 	
