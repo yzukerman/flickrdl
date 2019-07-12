@@ -125,7 +125,7 @@ public class BackupClient {
             	photoSetPage++;
             }
             logger.info("Set #" + setCount + " Size: " + photos.size());
-            if (setCount > 4 && setCount < 7)
+            if (setCount > 9 && setCount < 11)
             {
             	logger.info("Downloading!");
             	downloadSet(set.getTitle(), photos, downloadDirectory, pool);            	
