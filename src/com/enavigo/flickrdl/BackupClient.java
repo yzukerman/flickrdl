@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,14 +27,12 @@ import com.flickr4java.flickr.auth.Auth;
 import com.flickr4java.flickr.auth.AuthInterface;
 import com.flickr4java.flickr.auth.Permission;
 import com.flickr4java.flickr.collections.Collection;
-import com.flickr4java.flickr.photos.GeoData;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.PhotosInterface;
 import com.flickr4java.flickr.photos.Size;
 import com.flickr4java.flickr.photosets.Photoset;
 import com.flickr4java.flickr.photosets.PhotosetsInterface;
-import com.flickr4java.flickr.test.*;
 import com.flickr4java.flickr.util.AuthStore;
 import com.flickr4java.flickr.util.FileAuthStore;
 import com.github.scribejava.core.model.OAuth1RequestToken;
@@ -71,12 +68,13 @@ public class BackupClient {
 	}
 	
 	public BackupClient(String apiKey, String nsid, String sharedSecret, File authsDir) throws FlickrException {
-        flickr = new Flickr(apiKey, sharedSecret, new REST());
-        this.nsid = nsid;
+            flickr = new Flickr(apiKey, sharedSecret, new REST());
+            this.nsid = nsid;
 
-        if (authsDir != null) {
-            this.authStore = new FileAuthStore(authsDir);
-        }
+            if (authsDir != null) {
+                logger.info("Creating Authstore at " + authsDir);
+                this.authStore = new FileAuthStore(authsDir);
+            }
 	}
 	
 	private void doBackup() throws Exception
@@ -125,10 +123,10 @@ public class BackupClient {
             	photoSetPage++;
             }
             logger.info("Set #" + setCount + " Size: " + photos.size());
-            if (setCount > 9 && setCount < 11)
+            if (setCount > 10 && setCount < 12)
             {
             	logger.info("Downloading!");
-            	downloadSet(set.getTitle(), photos, downloadDirectory, pool);            	
+            	//downloadSet(set.getTitle(), photos, downloadDirectory, pool);            	
             }
             setCount++;
         }
@@ -138,25 +136,25 @@ public class BackupClient {
 	}
 	
 	private void authorize() throws IOException, FlickrException {
-        AuthInterface authInterface = flickr.getAuthInterface();
-        OAuth1RequestToken requestToken = authInterface.getRequestToken();
+            AuthInterface authInterface = flickr.getAuthInterface();
+            OAuth1RequestToken requestToken = authInterface.getRequestToken();
 
-        String url = authInterface.getAuthorizationUrl(requestToken, Permission.READ);
-        System.out.println("Follow this URL to authorise yourself on Flickr");
-        System.out.println(url);
-        System.out.println("Paste in the token it gives you:");
-        System.out.print(">>");
+            String url = authInterface.getAuthorizationUrl(requestToken, Permission.READ);
+            System.out.println("Follow this URL to authorise yourself on Flickr");
+            System.out.println(url);
+            System.out.println("Paste in the token it gives you:");
+            System.out.print(">>");
 
-        Scanner s = new Scanner(System.in);
-        String tokenKey = s.nextLine();
-        s.close();
+            Scanner s = new Scanner(System.in);
+            String tokenKey = s.nextLine();
+            s.close();
 
-        OAuth1Token accessToken = authInterface.getAccessToken(requestToken, tokenKey);
+            OAuth1Token accessToken = authInterface.getAccessToken(requestToken, tokenKey);
 
-        Auth auth = authInterface.checkToken(accessToken);
-        RequestContext.getRequestContext().setAuth(auth);
-        this.authStore.store(auth);
-        System.out.println("Thanks.  You probably will not have to do this every time.  Now starting backup.");
+            Auth auth = authInterface.checkToken(accessToken);
+            RequestContext.getRequestContext().setAuth(auth);
+            this.authStore.store(auth);
+            System.out.println("Thanks.  You probably will not have to do this every time.  Now starting backup.");
 	}
 
 	
