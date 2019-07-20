@@ -27,16 +27,52 @@ public class FlickrdlUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuItem2 = new javax.swing.JMenuItem();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
+        fileMenu = new javax.swing.JMenu();
+        accountMenuItem = new javax.swing.JMenuItem();
+        optionsMenuItem = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        quitMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+
+        jMenuItem2.setText("jMenuItem2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Flickrdl");
 
-        jMenu1.setText("File");
-        jMenuBar1.add(jMenu1);
+        fileMenu.setText("File");
+
+        accountMenuItem.setText("Accounts");
+        accountMenuItem.setToolTipText("Manage Photo Accounts");
+        accountMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                accountMenuItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(accountMenuItem);
+
+        optionsMenuItem.setText("Options");
+        optionsMenuItem.setToolTipText("Update Options");
+        optionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                optionsMenuItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(optionsMenuItem);
+        fileMenu.add(jSeparator1);
+
+        quitMenuItem.setText("Quit");
+        quitMenuItem.setToolTipText("Quit the application");
+        quitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitMenuItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(quitMenuItem);
+
+        jMenuBar1.add(fileMenu);
 
         jMenu2.setText("Edit");
 
@@ -51,15 +87,29 @@ public class FlickrdlUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 582, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 278, Short.MAX_VALUE)
+            .addGap(0, 366, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void accountMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_accountMenuItemActionPerformed
+        // TODO add your handling code here:
+        AccountSetupDialog dialog = new AccountSetupDialog(this, true);
+        dialog.setVisible(true);
+    }//GEN-LAST:event_accountMenuItemActionPerformed
+
+    private void optionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsMenuItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_optionsMenuItemActionPerformed
+
+    private void quitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitMenuItemActionPerformed
+        System.exit(0);        // TODO add your handling code here:
+    }//GEN-LAST:event_quitMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -97,9 +147,14 @@ public class FlickrdlUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuItem accountMenuItem;
+    private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenuItem optionsMenuItem;
+    private javax.swing.JMenuItem quitMenuItem;
     // End of variables declaration//GEN-END:variables
 }
