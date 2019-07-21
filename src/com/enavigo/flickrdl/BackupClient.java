@@ -53,6 +53,9 @@ public class BackupClient {
     private final Logger logger = LoggerFactory.getLogger(BackupClient.class);
     
     private String downloadDirectory = "Flickrdl";
+    
+    private static final String apiKey = "d5cb7c4bcaceed5a2c69ea55bcf5a597";
+    private static final String sharedSecret = "6d6edccc4b38776a";
 	
 	/**
 	 * @param args
@@ -60,15 +63,22 @@ public class BackupClient {
 	 */
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-		 String apiKey = "d5cb7c4bcaceed5a2c69ea55bcf5a597";
-		 String sharedSecret = "6d6edccc4b38776a";
-		 String nsid2 = "https://farm4.staticflickr.com/3572/buddyicons/48947735@N00.jpg?1240579772#48947735@N00";
-		 BackupClient bc = new BackupClient(apiKey, "48947735@N00", sharedSecret, new File("C:\\Development\\authstore\\"));
+		 BackupClient bc = new BackupClient(apiKey, "48947735@N00", sharedSecret, new File(getAuthStoreLocation()), null);
 		 bc.doBackup();
 	}
+        
+        public BackupClient(Flickr flickr, String nsid) throws FlickrException
+        {
+            this(apiKey, nsid, sharedSecret, new File(getAuthStoreLocation()), flickr);
+        }
 	
-	public BackupClient(String apiKey, String nsid, String sharedSecret, File authsDir) throws FlickrException {
-            flickr = new Flickr(apiKey, sharedSecret, new REST());
+	public BackupClient(String apiKey, String nsid, String sharedSecret, File authsDir, Flickr flickrIn) throws FlickrException {
+            if(flickrIn == null)
+                flickr = new Flickr(apiKey, sharedSecret, new REST());
+            else
+                flickr = flickrIn;
+            
+            
             this.nsid = nsid;
 
             if (authsDir != null) {
@@ -297,4 +307,10 @@ public class BackupClient {
 	        
 		}
 	}
+        
+        private static String getAuthStoreLocation()
+        {
+            String authStoreLoc = System.getProperty("user.home") + File.separator + "authstore";
+            return authStoreLoc;
+        }
 }

@@ -5,6 +5,8 @@
  */
 package com.enavigo.flickrdl.ui;
 
+import com.enavigo.flickrdl.BackupClient;
+
 /**
  *
  * @author yzukerma
@@ -157,4 +159,6 @@ public class FlickrdlUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem optionsMenuItem;
     private javax.swing.JMenuItem quitMenuItem;
     // End of variables declaration//GEN-END:variables
+
+    private BackupClient bc;
 }
