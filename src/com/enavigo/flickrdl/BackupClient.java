@@ -37,6 +37,9 @@ import com.flickr4java.flickr.util.AuthStore;
 import com.flickr4java.flickr.util.FileAuthStore;
 import com.github.scribejava.core.model.OAuth1RequestToken;
 import com.github.scribejava.core.model.OAuth1Token;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author yzukerma
@@ -135,19 +138,24 @@ public class BackupClient {
         pool.awaitTermination(5, TimeUnit.SECONDS);
 	}
 	
-	private void authorize() throws IOException, FlickrException {
+	private void authorize() throws IOException, 
+                                        FlickrException, 
+                                        URISyntaxException 
+        {
             AuthInterface authInterface = flickr.getAuthInterface();
             OAuth1RequestToken requestToken = authInterface.getRequestToken();
 
             String url = authInterface.getAuthorizationUrl(requestToken, Permission.READ);
-            System.out.println("Follow this URL to authorise yourself on Flickr");
-            System.out.println(url);
-            System.out.println("Paste in the token it gives you:");
-            System.out.print(">>");
+           
+                System.out.println("Follow this URL to authorise yourself on Flickr");
+                System.out.println(url);
+                System.out.println("Paste in the token it gives you:");
+                System.out.print(">>");
 
-            Scanner s = new Scanner(System.in);
-            String tokenKey = s.nextLine();
-            s.close();
+                Scanner s = new Scanner(System.in);
+                String tokenKey = s.nextLine();
+                s.close();
+                
 
             OAuth1Token accessToken = authInterface.getAccessToken(requestToken, tokenKey);
 
