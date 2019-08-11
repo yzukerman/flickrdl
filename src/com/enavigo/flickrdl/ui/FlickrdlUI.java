@@ -5,16 +5,64 @@
  */
 package com.enavigo.flickrdl.ui;
 
+import com.enavigo.flickrdl.BackupClient;
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.FlickrException;
+import com.flickr4java.flickr.REST;
+import com.flickr4java.flickr.RequestContext;
+import com.flickr4java.flickr.auth.Auth;
+import com.flickr4java.flickr.auth.AuthInterface;
+import com.flickr4java.flickr.auth.Permission;
+import com.flickr4java.flickr.util.AuthStore;
+import com.flickr4java.flickr.util.FileAuthStore;
+import com.github.scribejava.core.model.OAuth1RequestToken;
+import com.github.scribejava.core.model.OAuth1Token;
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author yzukerma
  */
 public class FlickrdlUI extends javax.swing.JFrame {
+    
+    private static String nsid = "";
+
+    private final Flickr flickr;
+
+    private AuthStore authStore;
+    
+    private final Logger logger = LoggerFactory.getLogger(FlickrdlUI.class);
+    
+    private String downloadDirectory = "Flickrdl";
+    
+    private String apiKey = "d5cb7c4bcaceed5a2c69ea55bcf5a597";
+    private String sharedSecret = "6d6edccc4b38776a";
+    private String authsDirName = "FlickrDLauthstore";
 
     /**
      * Creates new form FlickrdlUI
      */
     public FlickrdlUI() {
+        flickr = new Flickr(apiKey, sharedSecret, new REST());
+        
+        String homeDir = System.getProperty("user.home");
+        File authsDir = new File(homeDir + File.separator + authsDirName);
+        
+        try
+        {
+            if (!authsDir.exists()) {
+                    logger.info("Creating Authstore at " + authsDir);
+                    this.authStore = new FileAuthStore(authsDir);
+                }
+        }
+        catch (FlickrException fe)
+        {
+            logger.error(fe.getErrorMessage());
+        }
         initComponents();
     }
 
@@ -27,6 +75,12 @@ public class FlickrdlUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+        flickrIDTextField = new javax.swing.JTextField();
+        authorizeButton = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        flickrAuthCodeTextField = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -34,6 +88,24 @@ public class FlickrdlUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Flickrdl");
+
+        jLabel1.setLabelFor(flickrIDTextField);
+        jLabel1.setText("Flickr User ID");
+
+        flickrIDTextField.setText("Flickr User ID");
+
+        authorizeButton.setText("Authorize");
+        authorizeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                authorizeButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Note: This will open a browser window");
+
+        flickrAuthCodeTextField.setText("Flickr Authorizaiton Code");
+
+        jLabel3.setText("Flickr Authorization Code");
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -51,16 +123,83 @@ public class FlickrdlUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(flickrIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(authorizeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2))
+                    .addComponent(flickrAuthCodeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 278, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(flickrIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(authorizeButton)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(flickrAuthCodeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addContainerGap(187, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void authorizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authorizeButtonActionPerformed
+        String userIdValue = this.flickrIDTextField.getText();
+        if(userIdValue != null && userIdValue.trim().length() > 0)
+        {
+            // get authorization request URL
+            RequestContext rc = RequestContext.getRequestContext();
+
+            if (this.authStore != null) {
+                Auth auth = this.authStore.retrieve(this.nsid);
+                if (auth == null) {
+                    //authorize();
+                } else {
+                    rc.setAuth(auth);
+                }
+            }
+        }
+    }//GEN-LAST:event_authorizeButtonActionPerformed
+
+    private void authorize() throws IOException, FlickrException {
+            AuthInterface authInterface = flickr.getAuthInterface();
+            OAuth1RequestToken requestToken = authInterface.getRequestToken();
+
+            String url = authInterface.getAuthorizationUrl(requestToken, Permission.READ);
+            System.out.println("Follow this URL to authorise yourself on Flickr");
+            System.out.println(url);
+            System.out.println("Paste in the token it gives you:");
+            System.out.print(">>");
+
+            Scanner s = new Scanner(System.in);
+            String tokenKey = s.nextLine();
+            s.close();
+
+            OAuth1Token accessToken = authInterface.getAccessToken(requestToken, tokenKey);
+
+            Auth auth = authInterface.checkToken(accessToken);
+            RequestContext.getRequestContext().setAuth(auth);
+            this.authStore.store(auth);
+            System.out.println("Thanks.  You probably will not have to do this every time.  Now starting backup.");
+	}
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -97,6 +236,12 @@ public class FlickrdlUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton authorizeButton;
+    private javax.swing.JTextField flickrAuthCodeTextField;
+    private javax.swing.JTextField flickrIDTextField;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
