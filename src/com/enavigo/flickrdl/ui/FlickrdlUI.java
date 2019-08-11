@@ -81,10 +81,6 @@ public class FlickrdlUI extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         flickrAuthCodeTextField = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Flickrdl");
@@ -106,18 +102,6 @@ public class FlickrdlUI extends javax.swing.JFrame {
         flickrAuthCodeTextField.setText("Flickr Authorizaiton Code");
 
         jLabel3.setText("Flickr Authorization Code");
-
-        jMenu1.setText("File");
-        jMenuBar1.add(jMenu1);
-
-        jMenu2.setText("Edit");
-
-        jMenuItem1.setText("Options");
-        jMenu2.add(jMenuItem1);
-
-        jMenuBar1.add(jMenu2);
-
-        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -153,11 +137,25 @@ public class FlickrdlUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(flickrAuthCodeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
-                .addContainerGap(187, Short.MAX_VALUE))
+                .addContainerGap(209, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void accountMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_accountMenuItemActionPerformed
+        // TODO add your handling code here:
+        AccountSetupDialog dialog = new AccountSetupDialog(this, true);
+        dialog.setVisible(true);
+    }//GEN-LAST:event_accountMenuItemActionPerformed
+
+    private void optionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsMenuItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_optionsMenuItemActionPerformed
+
+    private void quitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitMenuItemActionPerformed
+        System.exit(0);        // TODO add your handling code here:
+    }//GEN-LAST:event_quitMenuItemActionPerformed
 
     private void authorizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authorizeButtonActionPerformed
         String userIdValue = this.flickrIDTextField.getText();
@@ -242,9 +240,7 @@ public class FlickrdlUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     // End of variables declaration//GEN-END:variables
+
+    private BackupClient bc;
 }
