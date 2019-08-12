@@ -77,9 +77,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="flickrIDTextField">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Flickr User ID"/>
-      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="flickrIDTextFieldActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="authorizeButton">
       <Properties>
@@ -95,9 +95,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="flickrAuthCodeTextField">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Flickr Authorizaiton Code"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>

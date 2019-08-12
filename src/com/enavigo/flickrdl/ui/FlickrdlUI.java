@@ -17,9 +17,11 @@ import com.flickr4java.flickr.util.AuthStore;
 import com.flickr4java.flickr.util.FileAuthStore;
 import com.github.scribejava.core.model.OAuth1RequestToken;
 import com.github.scribejava.core.model.OAuth1Token;
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,29 +37,34 @@ public class FlickrdlUI extends javax.swing.JFrame {
 
     private AuthStore authStore;
     
-    private final Logger logger = LoggerFactory.getLogger(FlickrdlUI.class);
+    private Logger logger;
     
     private String downloadDirectory = "Flickrdl";
     
     private String apiKey = "d5cb7c4bcaceed5a2c69ea55bcf5a597";
     private String sharedSecret = "6d6edccc4b38776a";
     private String authsDirName = "FlickrDLauthstore";
-
+    private AuthInterface authInterface; 
+    private File authsDir;
+    
     /**
      * Creates new form FlickrdlUI
      */
     public FlickrdlUI() {
         flickr = new Flickr(apiKey, sharedSecret, new REST());
         
+        logger = LoggerFactory.getLogger(FlickrdlUI.class);
+           
         String homeDir = System.getProperty("user.home");
-        File authsDir = new File(homeDir + File.separator + authsDirName);
-        
+        authsDir = new File(homeDir + File.separator + authsDirName);
+        logger.info("Authstore at " + authsDir);
         try
         {
-            if (!authsDir.exists()) {
+            if (authsDir != null) {
                     logger.info("Creating Authstore at " + authsDir);
                     this.authStore = new FileAuthStore(authsDir);
                 }
+             authInterface = flickr.getAuthInterface();
         }
         catch (FlickrException fe)
         {
@@ -88,7 +95,11 @@ public class FlickrdlUI extends javax.swing.JFrame {
         jLabel1.setLabelFor(flickrIDTextField);
         jLabel1.setText("Flickr User ID");
 
-        flickrIDTextField.setText("Flickr User ID");
+        flickrIDTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                flickrIDTextFieldActionPerformed(evt);
+            }
+        });
 
         authorizeButton.setText("Authorize");
         authorizeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -98,8 +109,6 @@ public class FlickrdlUI extends javax.swing.JFrame {
         });
 
         jLabel2.setText("Note: This will open a browser window");
-
-        flickrAuthCodeTextField.setText("Flickr Authorizaiton Code");
 
         jLabel3.setText("Flickr Authorization Code");
 
@@ -158,28 +167,57 @@ public class FlickrdlUI extends javax.swing.JFrame {
     }//GEN-LAST:event_quitMenuItemActionPerformed
 
     private void authorizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authorizeButtonActionPerformed
+        logger.info("Authorization requested");
         String userIdValue = this.flickrIDTextField.getText();
+        
         if(userIdValue != null && userIdValue.trim().length() > 0)
         {
             // get authorization request URL
             RequestContext rc = RequestContext.getRequestContext();
-
+            logger.info("Authstore? " + (this.authStore==null));
             if (this.authStore != null) {
                 Auth auth = this.authStore.retrieve(this.nsid);
                 if (auth == null) {
-                    //authorize();
+                    try
+                    {
+                        logger.debug("Authorizing");
+                        authorizeStep1();
+                    }
+                    catch(Exception e)
+                    {
+                        logger.error(e.getLocalizedMessage());
+                    }
                 } else {
+                    logger.debug("No need to authorize");
                     rc.setAuth(auth);
                 }
             }
         }
     }//GEN-LAST:event_authorizeButtonActionPerformed
 
-    private void authorize() throws IOException, FlickrException {
-            AuthInterface authInterface = flickr.getAuthInterface();
+    private void flickrIDTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flickrIDTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_flickrIDTextFieldActionPerformed
+
+    private OAuth1RequestToken authorizeStep1() throws 
+            IOException, FlickrException, URISyntaxException
+    {
+            
             OAuth1RequestToken requestToken = authInterface.getRequestToken();
 
             String url = authInterface.getAuthorizationUrl(requestToken, Permission.READ);
+            
+            
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(url));
+            }
+            else
+            {
+                logger.error("Failed to open desktop browser");
+            }
+            
+            return requestToken;
+            /*
             System.out.println("Follow this URL to authorise yourself on Flickr");
             System.out.println(url);
             System.out.println("Paste in the token it gives you:");
@@ -195,8 +233,20 @@ public class FlickrdlUI extends javax.swing.JFrame {
             RequestContext.getRequestContext().setAuth(auth);
             this.authStore.store(auth);
             System.out.println("Thanks.  You probably will not have to do this every time.  Now starting backup.");
+            */
 	}
     
+    private void authorizeStep2(OAuth1RequestToken requestToken, String tokenKey) 
+            throws FlickrException, IOException
+    {
+        OAuth1Token accessToken = authInterface.getAccessToken(requestToken, tokenKey);
+
+        Auth auth = authInterface.checkToken(accessToken);
+        RequestContext.getRequestContext().setAuth(auth);
+        this.authStore.store(auth);
+        System.out.println("Thanks.  You probably will not have to do this every time.  Now starting backup.");
+
+    }
     
     /**
      * @param args the command line arguments
